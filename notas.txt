@@ -1,0 +1,21 @@
+archivo de configuración webpack
+  webpack.config.js
+
+se crea modulo con la configuración deseada
+  module.exports={
+    entry:'./src/index.js', (Archivo donde se origina el proyecto)
+    output:{ (archivo de salida )
+      path :path.resolve(__dirname, 'dist'), (encontrar el directorio llamado dist)
+      filename: 'main.js' (el nombre del archivo de salida)
+    },
+    resolve:{
+      extensions:['.js'] (extensiones que se usaran, js o svelte, react, etc)
+    }
+  }
+
+Para configurar el archivo webpack se usa el siguiente comando
+  npx webpack --mode production --config webpack.config.js
+
+se puede crear un script en package.json para pasar a modo producción
+  "build": "webpack --mode production"
+  npm run build (para ejecutar)
