@@ -1,0 +1,158 @@
+archivo de configuración webpack
+  webpack.config.js
+
+se crea modulo con la configuración deseada
+  module.exports={
+    entry:'./src/index.js', (Archivo donde se origina el proyecto)
+    output:{ (archivo de salida )
+      path :path.resolve(__dirname, 'dist'), (encontrar el directorio llamado dist)
+      filename: 'main.js' (el nombre del archivo de salida)
+    },
+    resolve:{
+      extensions:['.js'] (extensiones que se usaran, js o svelte, react, etc)
+    }
+  }
+
+Para configurar el archivo webpack se usa el siguiente comando
+  npx webpack --mode production --config webpack.config.js
+
+se puede crear un script en package.json para pasar a modo producción
+  "build": "webpack --mode production"
+  npm run build (para ejecutar)
+
+Instalar todas las dependencias necesarias de babel para que sea compatible con todos los navegadores
+  npm install babel-loader @babel/core @babel/preset-env @babel/plugin-transform-runtime -D
+
+Crear archivo .babelrc y incluir configuraciones agregadas (presets y plugins)
+  {
+  "presets":[
+    "@babel/preset-env",
+    "@babel/plugin-transform-runtime"
+  ]
+}
+
+
+agregar en webpack.config.js
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,  (expresión regular-utiliza cualquier extension que termine en mjs o js)
+        exclude: /node_modules/, (excluir módulos de node)
+        use: {
+          loader: "babel-loader", (usar loader babel)
+        },
+      },
+    ],
+  },
+
+se ejecuta el comando de modo de producción para ver que el código cambia
+
+instalar plugin html en webpack
+  npm install html-webpack-plugin -D
+
+se agrega const a webpack.config
+  const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+también se agrega apartado de plugin
+  Plugin:[
+    new HtmlWebpackPlugin({
+      inject:true,
+      template:'./public/index.html',
+      filename:'./index.html'
+    })
+  ]
+
+Se elimina la linde a que importa el script en ./public/index.html ya que webpack lo hará automáticamente
+
+Para css y pre procesadores, instalar los siguientes plugins
+  npm install mini-css-extract-plugin css-loader -D
+
+borrar del template (./public.index.html) donde se importa el css
+
+Se agrega el import de los estilos en ./src/index.js
+  import './styles/main.css';
+
+en webpack config se agrega lo siguiente:
+  const MiniCssExtractPlugin = require("mini-css-extract-plugin"); (agregar plugin a documento)
+
+  (configuración del loader de css)
+  {
+    test: /\.css$/i,
+    use: [
+      MiniCssExtractPlugin.loader,'css-loader'
+    ],
+  },
+
+  new MiniCssExtractPlugin(), (uso del plugin)
+
+instalar stylus
+  npm install stylus stylus-loader -D
+
+Se cambia parte de la configuración
+  {
+    test: /\.css|.styl$/i,
+    use: [MiniCssExtractPlugin.loader, "css-loader", "stylus-loader"],
+  },
+
+mover archivo o elementos de src a dist
+  npm install copy-webpack-plugin -D
+
+Agregar configuraciones a webpack.config.js
+  const CopyPlugin = require("copy-webpack-plugin");
+  
+  new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, "src", "assets/images"),
+          to: "assets/images",
+        },
+      ],
+    }),
+
+Loader de imágenes (modulo) para optimizar
+  Se agrega en el apartado de modulo y reglas
+    {
+      test: /\.png/,
+      type: 'asset/resource'
+    }
+  
+  ya se pueden importar las imágenes en el template, se usa import y la ruta donde estarán las imágenes
+    import github from "../assets/images/github.png";
+    <img src="${twitter}" />
+
+Loader de fuentes
+  Descargar fonts en formato .woff
+  en archivo main.css se agrega lo siguiente:
+    @font-face {
+      font-family: ubuntu;
+      src: url("../assets/fonts/ubuntu-regular.woff2") format("woff2"),
+        url("../assets/fonts/ubuntu-regular.woff") format("woff");
+      font-weight: 400;
+      font-style: normal;
+    }
+
+se instalan los siguiente módulos
+  npm install url-loader file-loader -D
+
+en webpack.config.js se agrega
+  en output
+    assetModuleFilename: 'assets/images/[hash][ext][query]'
+  en module/rules
+    {
+      test: /\.(woff|woff2)$/,
+      use: {
+        loader: "url-loader",
+        Option: {
+          limit: 10000, (habilitar o deshabilitar la transformación de archivos en base64)
+          mimetype: "application/font.woff", (especificar el MIME type(multipurpose internet mail extensions) manera estándar de mandar contenido a traves de la red)
+          name: "[name].[ext]", (nombre inicial del archivo y su extension)
+          outputPath: "./assets/fonts/", (directorio de salida)
+          publicPath: "./assets/fonts/", (directorio publico)
+          esModule: false, (avisar explícitamente si es un modulo )
+        },
+      },
+    },
+
+Confirmar que de main.css no se este importando las font de una url de internet
+
+
