@@ -264,6 +264,21 @@ modo watch, escuchar cambios de nuestro proyecto y compilar automáticamente.
   o se puede crear y ejecutar el siguiente script, donde se ejecuta el script dev con el flag watch
     "watch": "npm run dev --watch"
 
+Para publicar en netlify se hace lo siguiente
+  Crear archivo netlify.toml y se escribe:
+    [build]
+      publish = 'dist'
+      command = 'npm run build'
+  Revisar las variables de entorno ya que no se sube el .env
+    crear una carpeta llamada scripts
+    dentro de ella crear archivo create-env.js
+    es un script para tener el url de la api que se guarda en netlify
+    const fs = require("fs"); //file system, modulo de node que permite trabajar con el sistema operativo para guardar o enviar datos
+    fs.writeFileSync("./.env", "API= ${process.env.api}\n");
+  
+  se ejecuta el script desde el package.json cada vez que se ejecute el script build
+    "build": "node ./scripts/create-env.js && webpack --mode production --config webpack.config.js",
+
 
 
 
