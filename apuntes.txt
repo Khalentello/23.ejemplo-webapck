@@ -155,4 +155,116 @@ en webpack.config.js se agrega
 
 Confirmar que de main.css no se este importando las font de una url de internet
 
+Optimizar proyecto
+  Instalar:
+    npm install css-minimizer-webpack-plugin terser-webpack-plugin -D
+
+Se crean las constantes 
+
+  const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+  const TerserPlugin = require("terser-webpack-plugin");
+
+Se agrega después de plugins en webpack config
+  optimization: {
+    minimize: true,
+    minimizer: [new CssMinimizerPlugin(), new TerserPlugin()],
+  },
+
+  Se cambian las siguientes configuraciones
+
+  options: {
+            limit: 10000,
+            mimetype: "application/font.woff",
+            name: "[name].[contenthash].[ext]",
+            outputPath: "./assets/fonts/",
+            publicPath: "./assets/fonts/",
+            esModule: false,
+  },
+
+  new MiniCssExtractPlugin({
+      filename: "assets/[name].[contenthash].css",
+  }),
+
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].[contenthash].js",
+    assetModuleFilename: "assets/images/[hash][ext][query]",
+  },
+
+  Los hash son para guardar en memoria cache las paginas y de esa forma se cargan mas rápido, cada vez que se realice una nueva version de la pagina se debe cambiar el hash o no se verán los cambios
+
+Alias para los paths y no usar las rutas manualmente
+
+Se agrega en config en resolve lo siguiente
+  alias:{
+    '@utils':path.resolve(__dirname,'src/utils/'),
+    '@templates':path.resolve(__dirname,'src/templates/'),
+    '@styles':path.resolve(__dirname,'src/styles/'),
+    '@images':path.resolve(__dirname,'src/images/'),
+  }
+
+y se cambian las rutas de la siguiente forma
+  import getData from "@utils/getData.js";
+  import github from "@images/github.png";
+  import twitter from "@images/twitter.png";
+  import instagram from "@images/instagram.png";
+
+Tener cuidado con el option de config para que no se pierdan las fonts
+  publicPath: "../assets/fonts/",
+
+Variables de entorno
+  npm install dotenv-webpack -D
+
+  Crear carpeta .env que es la de variables de entorno
+    no se suben al repositorio, si se ingresa a un equipo se deben solicitar ya que son secretas
+    se crea la api que se esta usando:
+      API=https://randomuser.me/api/
+  
+  Crear .env.example
+    solo se coloca la api sin url
+    API=
+  
+  donde se usa la api (getData.js) se cambia lo siguiente, para evitar que la url de la api se muestre, ya que queda en variables de entorno y no se pueden ver si no se piden, como no se suben al repositorio
+    const API = process.env.API;
+  
+
+configuraciones para desarrollo
+  Crear un archivo webpack.config.dev.js y copiar lo que se tenia en el otro archivo, pero sin la parte de optimización
+  después de output se pone lo siguiente
+    mode:'development',
+  En package.json se cambian los script
+    "dev": "webpack --config webpack.config.dev.js"
+
+configuraciones para producción
+  el archivo webpack.config.js sigue siendo el mismo
+  
+  Para limpiar los archivos que se copian mal, ose van creando luego de cada compilación se usa el siguiente plug incluir
+    npm install clean-webpack-plugin -D
+
+  para organizar correctamente la carpeta de dist se realiza lo siguiente en webpack.config.js
+    const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+    new CleanWebpackPlugin(), (en plugins)
+  
+  En package.json se cambia lo siguiente
+    "build": "webpack --mode production --config webpack.config.js",
+
+  Cada vez que se pase a modo developer se crea una instancia nueva, pero al ejecutar el modo de dev se ubicaría unicamente 1 archivo
+
+  otra opción sin instalar mas plugins es escribir el siguiente código en output de webpack.config
+    clean: true, se limpiaría sin instalar plugins adicionales
+
+
+modo watch, escuchar cambios de nuestro proyecto y compilar automáticamente.
+  en el config de dev se agrega el siguiente comando luego de mode
+      watch: true,
+  se ejecuta npm run dev para que se quede activo el modo de desarrollo, y se queda escuchando los cambios, cada vez que se guarde un archivo, detecta el cambio
+
+  Se puede crear un script para que sea estuchando y otro script normalmente como se estaba haciendo, es decir, ejecutar el comando cada vez que se quiera configurar, ejemplo con el modo build con watch
+    "build:watch": "webpack --watch --config webpack.config.js"
+  o se puede crear y ejecutar el siguiente script, donde se ejecuta el script dev con el flag watch
+    "watch": "npm run dev --watch"
+
+
+
+
 
