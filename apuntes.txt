@@ -1,3 +1,5 @@
+API https://randomuser.me/api/
+
 archivo de configuración webpack
   webpack.config.js
 
@@ -278,6 +280,51 @@ Para publicar en netlify se hace lo siguiente
   
   se ejecuta el script desde el package.json cada vez que se ejecute el script build
     "build": "node ./scripts/create-env.js && webpack --mode production --config webpack.config.js",
+
+webpack dev server
+  npm install webpack-dev-server -D
+
+En el archivo de config se agrega
+  devServer: {
+    static: {
+      directory: path.join(__dirname, "dist"),
+      watch: true,
+    },
+    watchFiles: path.join(__dirname, "./**"),
+    compress: true,
+    historyApiFallback: true,
+    port: 3006, //puede cambiar
+    open: true, //para abrir el navegador
+  },
+
+En el package.json se agrega un script
+  "start": "webpack serve --config webpack.config.dev.js"
+
+Webpack Bundle analyzer
+  saber que paquetes uso y dependencias, que puedo optimizar
+
+  instalar
+  npm install webpack-bundle-analyzer -D
+
+  se hace la configuración respectiva
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    new BundleAnalyzerPlugin(),
+
+  para analizar se ejecuta lo siguiente en la terminal
+    npx webpack --profile --json > stats.json
+    Se analiza el proyecto y lo guarda en un archivo json llamado stats.json
+  con el archivo anterior se ejecuta el webpack analyzer y abre una pagina en el navegador con la información
+    npx webpack-bundle-analyzer stats.json
+
+DevTools, para crear un mapa del código (se hace un mata para relacional el código que se carga al navegador a uno mas legible, por el tema de babel que cambia el código por compatibilidad)
+  en en config dev se agrega lo siguiente
+    devtool:'source-map',
+  En la terminal se ejecuta el comando para el modo de development
+
+  Se abre la aplicación con live server, y en el apartado de source, al darle click en los números de linea
+
+REACT!!!
+ 
 
 
 
